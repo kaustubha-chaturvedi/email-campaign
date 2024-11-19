@@ -39,7 +39,11 @@ This is an **Email Campaign Manager** built with Django, Django REST Framework, 
   - Django's EmailMultiAlternatives
 
 ---
-
+## **Run With Docker**
+```bash
+docker compose up
+```
+### **or Dont**
 ## **Installation**
 
 ### **Prerequisites**
