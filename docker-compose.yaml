@@ -1,0 +1,58 @@
+services:
+    web:
+        build: .
+        volumes:
+            - static_volume:/code/static
+        depends_on:
+            - db
+            - redis
+        ports:
+            - "80:80"
+        env_file:
+            - .env
+        networks:
+            - backend
+
+    db:
+        image: postgres:13
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+        environment:
+            POSTGRES_USER: ${DB_USER}
+            POSTGRES_PASSWORD: ${DB_PASSWORD}
+            POSTGRES_DB: ${DB_NAME}
+        networks:
+            - backend
+        ports:
+            - "5432:5432"
+
+    redis:
+        image: redis:alpine
+        networks:
+            - backend
+
+    celery:
+        build: .
+        command:
+            [
+                "sh",
+                "-c",
+                ". /code/venv/bin/activate && celery -A email_campaign worker --loglevel=info & celery -A email_campaign beat --loglevel=info",
+            ]
+        volumes:
+            - .:/code
+        depends_on:
+            - redis
+            - db
+        env_file:
+            - .env
+        networks:
+            - backend
+
+networks:
+    backend:
+        driver: bridge
+
+volumes:
+    postgres_data:
+    static_volume:
